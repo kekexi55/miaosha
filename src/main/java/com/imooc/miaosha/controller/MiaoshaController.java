@@ -47,7 +47,7 @@ public class MiaoshaController implements InitializingBean {
         if(stock<0){
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
-        MiaoshaOrder order = orderService.getMiaoshaOrderByOrderIdGoodsId(user.getId(),goodsId);
+        MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(),goodsId);
         if(order!=null){
             return Result.error(CodeMsg.REPEATE_MIAOSHA);
         }
