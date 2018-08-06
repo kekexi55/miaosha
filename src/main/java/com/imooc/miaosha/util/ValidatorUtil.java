@@ -14,4 +14,7 @@ public class ValidatorUtil {
         Matcher matcher = mobile_partten.matcher(mobile);
         return matcher.matches();
     }
+    public static String isTest(){
+        return "test";
+    }
 }

@@ -2,6 +2,8 @@ package com.imooc.miaosha.controller;
 
 import com.imooc.miaosha.domain.Goods;
 import com.imooc.miaosha.domain.MiaoshaUser;
+import com.imooc.miaosha.redis.GoodsKey;
+import com.imooc.miaosha.redis.KeyPrefix;
 import com.imooc.miaosha.redis.MiaoshaUserKey;
 import com.imooc.miaosha.redis.RedisService;
 import com.imooc.miaosha.service.GoodsService;
@@ -10,12 +12,16 @@ import com.imooc.miaosha.vo.GoodsVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.spring4.context.SpringWebContext;
+import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -27,23 +33,38 @@ public class GoodsController {
     private MiaoshaUserService miaoshaUserService;
     @Autowired
     private GoodsService goodsService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private ThymeleafViewResolver thymeleafViewResolver;
+    @Autowired
+    private ApplicationContext applicationContext;
     @RequestMapping("/to_list")
-    public String to_list(MiaoshaUser user, Model model){
-        if(user ==null){
-            return "login";
-        }
-        List<GoodsVo> goodsList =  goodsService.listGoodsVo();
+    @ResponseBody
+    public String to_list(MiaoshaUser user, Model model, HttpServletRequest request, HttpServletResponse response){
         model.addAttribute("user", user);
-        model.addAttribute("goodsList", goodsList);
-
-        return "goods_list";
+        List<GoodsVo> goodsList =  goodsService.listGoodsVo();
+        model.addAttribute("goodsList",goodsList);
+        String html = redisService.get(GoodsKey.getGoodsList,"",String.class);
+        if(!StringUtils.isEmpty(html)){
+            return html;
+        }
+        SpringWebContext swc = new SpringWebContext(request,response,request.getServletContext(),request.getLocale(),model.asMap(),applicationContext);
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_list",swc);
+        redisService.set(GoodsKey.getGoodsList,"",html);
+        return html;
     }
-    @RequestMapping("/to_detail/{goodsId}")
-    public String to_detail(MiaoshaUser user, Model model, @PathVariable(value = "goodsId") long goodsId){
+    @RequestMapping(value = "/to_detail/{goodsId}",produces = "text/html")
+    @ResponseBody
+    public String to_detail(MiaoshaUser user, Model model, @PathVariable(value = "goodsId") long goodsId,
+                            HttpServletRequest request, HttpServletResponse response){
         GoodsVo goods = goodsService.getGoodsById(goodsId);
         model.addAttribute("user", user);
         model.addAttribute("goods", goods);
-
+        String html = redisService.get(GoodsKey.getGoodsDetail,String.valueOf(goodsId),String.class);
+        if(!StringUtils.isEmpty(html)){
+            return html;
+        }
         long startAt = goods.getStartDate().getTime();
         long endAt = goods.getEndDate().getTime();
         long now = System.currentTimeMillis();
@@ -61,6 +82,9 @@ public class GoodsController {
         }
         model.addAttribute("miaoshaStatus", miaoshaStatus);
         model.addAttribute("remainSeconds", remainSeconds);
-        return "goods_detail";
+        SpringWebContext swc = new SpringWebContext(request,response,request.getServletContext(),request.getLocale(),model.asMap(),applicationContext);
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail",swc);
+        redisService.set(GoodsKey.getGoodsList,String.valueOf(goodsId),html);
+        return html;
     }
 }

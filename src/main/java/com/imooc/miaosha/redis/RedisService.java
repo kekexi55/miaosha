@@ -51,6 +51,17 @@ public class RedisService {
         }
     }
 
+    public boolean delete(KeyPrefix prefix,String key){
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            long ret = jedis.del(prefix.getPrefix()+key);
+            return ret > 0;
+        }finally {
+            returnToPool(jedis);
+        }
+    }
+
     private <T>T strToBean(String str,Class<T> clazz){
         if(str ==null || str.length()<=0 ||clazz ==null){
             return null;
