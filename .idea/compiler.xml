@@ -12,5 +12,6 @@
         <module name="miaosha" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
   </component>
 </project>
