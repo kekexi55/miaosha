@@ -53,10 +53,5 @@ public class SampleController {
         System.out.println(v2);
     }
 
-    @RequestMapping("/mq/")
-    @ResponseBody
-    public void mq(){
-        mqSender.sendMessage();
-    }
 
 }

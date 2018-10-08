@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 public class MQSender {
     @Autowired
     private AmqpTemplate amqpTemplate;
-    public void sendMessage(){
-        amqpTemplate.convertAndSend(MQConfig.QName,"hello,world");
-    }
 
     public void sendMiaoshaMessage(MiaoshaMessage message){
         amqpTemplate.convertAndSend(MQConfig.MIAOSHA_QUEUE,message);
