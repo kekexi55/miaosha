@@ -8,8 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class MQConfig {
     @Bean
     public Queue getQueue(){
-        return new Queue(MQConfig.QName);
+        return new Queue(MQConfig.MIAOSHA_QUEUE);
     }
-    public static final String QName="queue";
     public static final String MIAOSHA_QUEUE="miaosha.queue";
 }
