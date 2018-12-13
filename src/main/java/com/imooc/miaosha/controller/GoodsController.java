@@ -9,6 +9,9 @@ import com.imooc.miaosha.redis.RedisService;
 import com.imooc.miaosha.service.GoodsService;
 import com.imooc.miaosha.service.MiaoshaUserService;
 import com.imooc.miaosha.vo.GoodsVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/goods")
+@Api(value = "商品信息的接口")
 public class GoodsController {
     Logger logger = LoggerFactory.getLogger(GoodsController.class);
     @Autowired
@@ -40,6 +44,7 @@ public class GoodsController {
     @Autowired
     private ApplicationContext applicationContext;
     @RequestMapping("/to_list")
+    @ApiOperation(value = "商品列表",notes ="列出商品列表")
     @ResponseBody
     public String to_list(MiaoshaUser user, Model model, HttpServletRequest request, HttpServletResponse response){
         model.addAttribute("user", user);
